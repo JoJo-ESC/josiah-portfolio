@@ -46,8 +46,13 @@ export default function Home() {
   const [isHitting, setIsHitting] = useState(false);
   const glassBroken = crackLevel >= 3;
 
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  useEffect(() => {
+    setIsTouchDevice(window.matchMedia("(hover: none) and (pointer: coarse)").matches);
+  }, []);
+
   const [contactOpen, setContactOpen] = useState(false);
-  const [form, setForm] = useState({ name: "", org: "", purpose: "" });
+  const [form, setForm] = useState({ name: "", org: "", purpose: "", _trap: "" });
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -93,8 +98,39 @@ export default function Home() {
     return () => window.removeEventListener("resize", update);
   }, []);
 
+  const [isTouching, setIsTouching] = useState(false);
+  const [touchPos, setTouchPos] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    if (!isTouchDevice) return;
+    const onStart = (e: TouchEvent) => {
+      const t = e.touches[0];
+      setTouchPos({ x: t.clientX, y: t.clientY });
+      setIsTouching(true);
+    };
+    const onMove = (e: TouchEvent) => {
+      const t = e.touches[0];
+      setTouchPos({ x: t.clientX, y: t.clientY });
+    };
+    const onEnd = () => setIsTouching(false);
+    window.addEventListener("touchstart", onStart);
+    window.addEventListener("touchmove", onMove);
+    window.addEventListener("touchend", onEnd);
+    return () => {
+      window.removeEventListener("touchstart", onStart);
+      window.removeEventListener("touchmove", onMove);
+      window.removeEventListener("touchend", onEnd);
+    };
+  }, [isTouchDevice]);
+
   let overlayBg: string;
-  if (flashlightOn) {
+  if (isTouchDevice) {
+    overlayBg = isTouching
+      ? `radial-gradient(circle at ${touchPos.x}px ${touchPos.y}px,
+          transparent 0px, transparent 110px,
+          rgba(0,0,0,0.88) 200px, rgba(0,0,0,0.97) 300px)`
+      : `rgba(0,0,0,0.96)`;
+  } else if (flashlightOn) {
     overlayBg = `radial-gradient(circle at ${mousePos.x}px ${mousePos.y}px,
       transparent 0px, transparent 100px,
       rgba(0,0,0,0.90) 190px, rgba(0,0,0,0.98) 280px)`;
@@ -115,12 +151,12 @@ export default function Home() {
 
       {/* Dark overlay */}
       <div
-        className="fixed inset-0 z-10 pointer-events-none transition-[background] duration-500"
+        className="fixed inset-0 z-10 pointer-events-none transition-[background] duration-300"
         style={{ background: overlayBg }}
       />
 
-      {/* Flashlight toggle */}
-      <button
+      {/* Flashlight toggle — desktop only */}
+      {!isTouchDevice && <button
         ref={btnRef}
         onClick={() => setFlashlightOn((v) => !v)}
         onMouseEnter={() => setBtnHovered(true)}
@@ -132,7 +168,7 @@ export default function Home() {
         }`}
       >
         {flashlightOn ? "[ light on ]" : "[ light ]"}
-      </button>
+      </button>}
 
       {/* Content */}
       <div className="relative z-0 max-w-5xl mx-auto px-8 py-16 grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-12 lg:gap-16">
@@ -342,6 +378,16 @@ export default function Home() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                {/* Honeypot — hidden from humans */}
+                <input
+                  type="text"
+                  value={form._trap}
+                  onChange={(e) => setForm((f) => ({ ...f, _trap: e.target.value }))}
+                  tabIndex={-1}
+                  aria-hidden="true"
+                  autoComplete="off"
+                  style={{ position: "absolute", left: "-9999px", opacity: 0, height: 0 }}
+                />
                 {[
                   { key: "name", label: "Name", placeholder: "your name" },
                   { key: "org", label: "Organization", placeholder: "where you're from" },
