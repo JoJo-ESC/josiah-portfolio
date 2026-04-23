@@ -66,7 +66,7 @@ export default function Home() {
       });
       if (res.ok) {
         setStatus("success");
-        setForm({ name: "", org: "", purpose: "" });
+        setForm({ name: "", org: "", purpose: "", _trap: "" });
       } else {
         setStatus("error");
       }
