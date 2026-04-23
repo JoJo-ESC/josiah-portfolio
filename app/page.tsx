@@ -172,7 +172,10 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-stone-300">
+    <div
+      className="min-h-screen bg-black text-stone-300"
+      style={isTouchDevice ? { WebkitUserSelect: "none", userSelect: "none", WebkitTouchCallout: "none" } as React.CSSProperties : {}}
+    >
 
       {/* Dark overlay */}
       <div
