@@ -100,19 +100,44 @@ export default function Home() {
 
   const [isTouching, setIsTouching] = useState(false);
   const [touchPos, setTouchPos] = useState({ x: 0, y: 0 });
+  const isTouchingRef = useRef(false);
+  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!isTouchDevice) return;
+
     const onStart = (e: TouchEvent) => {
       const t = e.touches[0];
       setTouchPos({ x: t.clientX, y: t.clientY });
-      setIsTouching(true);
+      holdTimerRef.current = setTimeout(() => {
+        isTouchingRef.current = true;
+        setIsTouching(true);
+      }, 300);
     };
+
     const onMove = (e: TouchEvent) => {
-      const t = e.touches[0];
-      setTouchPos({ x: t.clientX, y: t.clientY });
+      if (isTouchingRef.current) {
+        // already illuminating — follow the finger
+        const t = e.touches[0];
+        setTouchPos({ x: t.clientX, y: t.clientY });
+      } else {
+        // finger moved before long-press fired — it's a scroll, cancel
+        if (holdTimerRef.current) {
+          clearTimeout(holdTimerRef.current);
+          holdTimerRef.current = null;
+        }
+      }
     };
-    const onEnd = () => setIsTouching(false);
+
+    const onEnd = () => {
+      if (holdTimerRef.current) {
+        clearTimeout(holdTimerRef.current);
+        holdTimerRef.current = null;
+      }
+      isTouchingRef.current = false;
+      setIsTouching(false);
+    };
+
     window.addEventListener("touchstart", onStart);
     window.addEventListener("touchmove", onMove);
     window.addEventListener("touchend", onEnd);
