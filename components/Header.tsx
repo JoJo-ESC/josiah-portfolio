@@ -30,7 +30,7 @@ export default function Header() {
           Projects
         </Link>
         <a 
-          href="/resume.pdf"
+          href="/NewResume.pdf"
           target="_blank"
           rel="noopener noreferrer"
           className="font-mono text-sm text-zinc-400 hover:text-zinc-100 transition-colors"

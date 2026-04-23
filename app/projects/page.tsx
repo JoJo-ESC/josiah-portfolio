@@ -3,6 +3,15 @@ import Image from "next/image";
 
 const projects = [
   {
+    title: "GneissCash",
+    description:
+      "A cash-flow intelligence workspace for everyday budgets. Import CSV and PDF bank statements, auto-categorize transactions, and surface insights through a 12-month cash flow dashboard, needs-vs-wants classifier, and spending trend charts.",
+    image: "/GneissCashDashboard.png",
+    tech: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "Chart.js"],
+    liveUrl: "",
+    githubUrl: "https://github.com/JoJo-ESC/gneisscash",
+  },
+  {
     title: "Revamp",
     description:
       "A full-stack web app that transforms legacy HTML into modern, Tailwind CSS-powered websites using AI. Simply paste a URL, and watch as AI converts old-school markup into clean, semantic HTML5 with Tailwind styling—all in real-time.",
