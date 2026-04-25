@@ -268,7 +268,7 @@ export default function Home() {
                 className="text-stone-300 hover:text-red-700 transition-colors">
                 LinkedIn ↗
               </a>
-              <a href="/NewResume.pdf" target="_blank" rel="noopener noreferrer"
+              <a href="/JosiahRigginsResume.pdf" target="_blank" rel="noopener noreferrer"
                 className="text-stone-300 hover:text-red-700 transition-colors">
                 Resume ↗
               </a>
