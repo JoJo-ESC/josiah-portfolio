@@ -52,7 +52,9 @@ export default function Home() {
 
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   useEffect(() => {
-    setIsTouchDevice(window.matchMedia("(hover: none) and (pointer: coarse)").matches);
+    const isTouch = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+    setIsTouchDevice(isTouch);
+    if (isTouch) setMode("info");
   }, []);
 
   const [contactOpen, setContactOpen] = useState(false);
