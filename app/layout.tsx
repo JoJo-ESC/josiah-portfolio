@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IM_Fell_English } from "next/font/google";
+import { IM_Fell_English, Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
@@ -7,6 +7,11 @@ const imFell = IM_Fell_English({
   weight: ["400"],
   style: ["normal", "italic"],
   subsets: ["latin"],
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -25,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${imFell.className} antialiased`}
+        className={`${imFell.className} ${inter.variable} antialiased`}
       >
         {children}
         <Analytics />

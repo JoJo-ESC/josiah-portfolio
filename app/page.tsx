@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Hammer } from "lucide-react";
 
+type Mode = null | "info" | "experience";
+
 export default function Home() {
   const tech = ["TypeScript", "Python", "React", "FastAPI", "PostgreSQL"];
 
@@ -42,6 +44,8 @@ export default function Home() {
     },
   ];
 
+  const [mode, setMode] = useState<Mode>(null);
+
   const [crackLevel, setCrackLevel] = useState(0);
   const [isHitting, setIsHitting] = useState(false);
   const glassBroken = crackLevel >= 3;
@@ -74,7 +78,9 @@ export default function Home() {
       setStatus("error");
     }
   };
+
   const [flashlightOn, setFlashlightOn] = useState(false);
+  const [lightsOn, setLightsOn] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [btnHovered, setBtnHovered] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -117,11 +123,9 @@ export default function Home() {
 
     const onMove = (e: TouchEvent) => {
       if (isTouchingRef.current) {
-        // already illuminating — follow the finger
         const t = e.touches[0];
         setTouchPos({ x: t.clientX, y: t.clientY });
       } else {
-        // finger moved before long-press fired — it's a scroll, cancel
         if (holdTimerRef.current) {
           clearTimeout(holdTimerRef.current);
           holdTimerRef.current = null;
@@ -171,32 +175,74 @@ export default function Home() {
       rgba(0,0,0,0.99) 70px)`;
   }
 
+  const infoFont = "var(--font-inter, ui-sans-serif, system-ui, sans-serif)";
+
   return (
     <div
       className="min-h-screen bg-black text-stone-300"
-      style={isTouchDevice ? { WebkitUserSelect: "none", userSelect: "none", WebkitTouchCallout: "none" } as React.CSSProperties : {}}
+      style={{
+        ...(isTouchDevice ? { WebkitUserSelect: "none", userSelect: "none", WebkitTouchCallout: "none" } as React.CSSProperties : {}),
+        ...(mode === "info" ? { fontFamily: infoFont } : {}),
+      }}
     >
+      {/* Choice screen */}
+      {mode === null && (
+        <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center gap-12 px-8">
+          <div className="text-center">
+            <h1 className="text-4xl text-stone-100 tracking-tight mb-3">Josiah Riggins</h1>
+            <p className="text-stone-500 text-sm tracking-wide">How would you like to proceed?</p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4 w-full max-w-xs sm:max-w-sm">
+            <button
+              onClick={() => setMode("info")}
+              className="flex-1 px-5 py-3 border border-stone-700 text-stone-300 text-sm tracking-wide rounded hover:border-stone-500 hover:text-stone-100 transition-all duration-200"
+            >
+              I&apos;m here for info
+            </button>
+            <button
+              onClick={() => setMode("experience")}
+              className="flex-1 px-5 py-3 border border-red-900/60 text-red-600 text-sm tracking-wide rounded transition-all duration-200
+                shadow-[0_0_18px_rgba(180,0,0,0.3)]
+                hover:border-red-700/80 hover:text-red-400 hover:shadow-[0_0_28px_rgba(180,0,0,0.5)]"
+            >
+              I want an experience
+            </button>
+          </div>
+        </div>
+      )}
 
-      {/* Dark overlay */}
-      <div
-        className="fixed inset-0 z-10 pointer-events-none transition-[background] duration-300"
-        style={{ background: overlayBg }}
-      />
+      {/* Dark overlay — experience mode only, hidden once lights are on */}
+      {mode === "experience" && !lightsOn && (
+        <div
+          className="fixed inset-0 z-10 pointer-events-none transition-[background] duration-300"
+          style={{ background: overlayBg }}
+        />
+      )}
 
-      {/* Flashlight toggle — desktop only */}
-      {!isTouchDevice && <button
-        ref={btnRef}
-        onClick={() => setFlashlightOn((v) => !v)}
-        onMouseEnter={() => setBtnHovered(true)}
-        onMouseLeave={() => setBtnHovered(false)}
-        className={`fixed top-5 right-5 z-20 text-xs px-3 py-1.5 rounded border transition-all duration-300 ${
-          flashlightOn || btnHovered
-            ? "text-red-600 border-red-800/60 shadow-[0_0_18px_rgba(180,0,0,0.55)]"
-            : "text-red-900 border-red-900/50 shadow-[0_0_10px_rgba(140,0,0,0.5)]"
-        }`}
-      >
-        {flashlightOn ? "[ light on ]" : "[ light ]"}
-      </button>}
+      {/* Centered activate button — shown before flashlight is on */}
+      {mode === "experience" && !isTouchDevice && !flashlightOn && !lightsOn && (
+        <button
+          ref={btnRef}
+          onClick={() => { setFlashlightOn(true); setBtnHovered(false); }}
+          onMouseEnter={() => setBtnHovered(true)}
+          onMouseLeave={() => setBtnHovered(false)}
+          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 text-xs px-3 py-1.5 rounded border transition-all duration-300
+            text-red-600 border-red-800/60 shadow-[0_0_18px_rgba(180,0,0,0.55)] hover:shadow-[0_0_28px_rgba(180,0,0,0.7)]"
+        >
+          [ light ]
+        </button>
+      )}
+
+      {/* Hidden "lights on" button in bottom-left — only visible when flashlight shines on it */}
+      {mode === "experience" && !isTouchDevice && flashlightOn && !lightsOn && (
+        <button
+          onClick={() => { setFlashlightOn(false); setLightsOn(true); }}
+          className="fixed bottom-5 left-5 z-[5] text-xs px-3 py-1.5 rounded border transition-all duration-200
+            text-stone-800 border-stone-900 hover:text-stone-500 hover:border-stone-700"
+        >
+          [ lights on ]
+        </button>
+      )}
 
       {/* Content */}
       <div className="relative z-0 max-w-5xl mx-auto px-8 py-16 grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-12 lg:gap-16">
@@ -237,6 +283,7 @@ export default function Home() {
               </div>
             </div>
           </div>
+
           {/* Contact sign */}
           <div className="border border-stone-900 rounded p-4 flex flex-col gap-3">
             <p className="text-xs text-stone-600 uppercase tracking-widest">Want to reach me?</p>
@@ -287,7 +334,6 @@ export default function Home() {
                   ${glassBroken ? "opacity-0 scale-[1.04] pointer-events-none" : "pointer-events-none"}`}
                 style={{ backdropFilter: `blur(${Math.max(0, 2 - crackLevel * 0.7)}px)` }}
               >
-                {/* Crack SVG */}
                 <svg
                   viewBox="0 0 100 100"
                   preserveAspectRatio="none"
@@ -377,6 +423,7 @@ export default function Home() {
 
         </div>
       </div>
+
       {/* Contact modal */}
       {contactOpen && (
         <div className="fixed inset-0 z-30 flex items-center justify-center p-4">
