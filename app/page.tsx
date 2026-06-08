@@ -262,7 +262,7 @@ export default function Home() {
 
           <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
             <div className="flex flex-col gap-2">
-              <a href="https://github.com/josiah-riggins" target="_blank" rel="noopener noreferrer"
+              <a href="https://github.com/JoJo-ESC" target="_blank" rel="noopener noreferrer"
                 className="text-stone-300 hover:text-red-700 transition-colors">
                 GitHub ↗
               </a>
